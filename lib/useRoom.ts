@@ -67,6 +67,10 @@ export function useRoom(
   const secretRef = useRef<HostSecret>({ deck: [], pos: 0, resposta: null });
   const meRef = useRef(me);
   meRef.current = me;
+  const gotStateRef = useRef(false);
+  const lastStateStrRef = useRef<string>("");
+  const helloTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const broadcastState = useCallback((s: GameState) => {
     hostStateRef.current = s;
@@ -145,6 +149,15 @@ export function useRoom(
 
     channel.on("broadcast", { event: "state" }, ({ payload }) => {
       if (isHostRef.current) return; // host usa o próprio estado
+      gotStateRef.current = true;
+      if (helloTimerRef.current) {
+        clearInterval(helloTimerRef.current);
+        helloTimerRef.current = null;
+      }
+      // Dedupe: o heartbeat reenvia o mesmo estado; só re-renderiza em mudança real.
+      const str = JSON.stringify(payload);
+      if (str === lastStateStrRef.current) return;
+      lastStateStrRef.current = str;
       setState(payload as GameState);
     });
 
@@ -179,6 +192,7 @@ export function useRoom(
       reconcilePlayers(list);
     });
 
+    gotStateRef.current = false;
     channel.subscribe(async (subStatus) => {
       if (subStatus === "SUBSCRIBED") {
         setStatus("connected");
@@ -190,14 +204,38 @@ export function useRoom(
             ]);
           }
           broadcastState(hostStateRef.current);
+          // Heartbeat: reemite o estado para qualquer convidado que esteja
+          // esperando (ex.: entrou enquanto o host estava em segundo plano).
+          if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+          heartbeatRef.current = setInterval(() => {
+            const s = hostStateRef.current;
+            if (s) channel.send({ type: "broadcast", event: "state", payload: s });
+          }, 3000);
         } else {
-          // Pede o estado atual ao host.
+          // Pede o estado ao host e vai reenviando até receber resposta.
           channel.send({ type: "broadcast", event: "hello", payload: {} });
+          if (helloTimerRef.current) clearInterval(helloTimerRef.current);
+          let attempts = 0;
+          helloTimerRef.current = setInterval(() => {
+            if (gotStateRef.current || attempts >= 20) {
+              if (helloTimerRef.current) {
+                clearInterval(helloTimerRef.current);
+                helloTimerRef.current = null;
+              }
+              return;
+            }
+            attempts++;
+            channel.send({ type: "broadcast", event: "hello", payload: {} });
+          }, 1500);
         }
       }
     });
 
     return () => {
+      if (helloTimerRef.current) clearInterval(helloTimerRef.current);
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+      helloTimerRef.current = null;
+      heartbeatRef.current = null;
       channel.unsubscribe();
       supabase.removeChannel(channel);
       channelRef.current = null;

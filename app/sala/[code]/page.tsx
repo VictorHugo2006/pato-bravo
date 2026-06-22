@@ -109,7 +109,7 @@ function Room({ code, nick }: { code: string; nick: string }) {
       )}
 
       {!state ? (
-        <Centered>Conectando à sala…</Centered>
+        <Connecting isHost={me.isHost} />
       ) : state.phase === "lobby" ? (
         <Lobby state={state} me={me} send={send} />
       ) : state.phase === "playing" ? (
@@ -522,6 +522,35 @@ function PlayerList({
         );
       })}
     </div>
+  );
+}
+
+function Connecting({ isHost }: { isHost: boolean }) {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSlow(true), 6000);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <Centered>
+      <div className="max-w-xs">
+        <div className="text-5xl mb-3 animate-pop">🦆</div>
+        <p className="text-emerald-100/80">Conectando à sala…</p>
+        {slow && !isHost && (
+          <p className="mt-4 text-sm text-amber-200/80 animate-pop">
+            Está demorando? Confira se o <b>código está certo</b> e peça pro
+            anfitrião <b>deixar a tela do jogo aberta</b> no celular (sem trocar
+            de app nem bloquear a tela enquanto vocês entram).
+          </p>
+        )}
+        {slow && isHost && (
+          <p className="mt-4 text-sm text-amber-200/80 animate-pop">
+            Está demorando pra conectar. Verifique sua internet — se persistir,
+            volte e crie a sala de novo.
+          </p>
+        )}
+      </div>
+    </Centered>
   );
 }
 
