@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#0b3d2e"/>
+  <!-- corpo -->
+  <ellipse cx="30" cy="42" rx="20" ry="15" fill="#facc15"/>
+  <!-- asa -->
+  <path d="M16 40 q12 -6 22 4 q-11 8 -22 2 z" fill="#eab308"/>
+  <!-- cabeça -->
+  <circle cx="42" cy="26" r="13" fill="#fde047"/>
+  <!-- bico -->
+  <path d="M53 25 q13 -1 14 6 q-9 6 -14 1 z" fill="#fb923c"/>
+  <!-- olho bravo -->
+  <circle cx="44" cy="23" r="2.6" fill="#0b3d2e"/>
+  <path d="M37 16 l10 4" stroke="#0b3d2e" stroke-width="2.6" stroke-linecap="round"/>
+</svg>
