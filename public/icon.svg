@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#0b3d2e"/>
+  <circle cx="256" cy="256" r="170" fill="#15573f"/>
+  <!-- corpo do pato -->
+  <ellipse cx="250" cy="300" rx="120" ry="95" fill="#facc15"/>
+  <!-- cabeça -->
+  <circle cx="320" cy="210" r="70" fill="#fde047"/>
+  <!-- bico -->
+  <path d="M375 205 q70 -5 78 28 q-50 28 -78 8 z" fill="#fb923c"/>
+  <!-- olho bravo -->
+  <circle cx="332" cy="195" r="11" fill="#0b3d2e"/>
+  <path d="M305 168 l44 14" stroke="#0b3d2e" stroke-width="10" stroke-linecap="round"/>
+  <!-- asa -->
+  <path d="M210 290 q60 -20 95 25 q-45 35 -95 10 z" fill="#eab308"/>
+</svg>

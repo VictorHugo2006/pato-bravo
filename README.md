@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pato Bravo 🦆
 
-## Getting Started
+Jogo de cartas **online multiplayer** de chutar números, blefe e desafio — inspirado na mecânica de "Nem a Pato!", com nome e perguntas próprias (seguro pra publicar).
 
-First, run the development server:
+**Stack:** Next.js (App Router) + TypeScript + Tailwind v4 + Supabase Realtime (PWA instalável).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Como funciona o multiplayer
+Sem banco de dados nem RLS: usa **Supabase Realtime** (presence + broadcast). O criador da sala é o **host autoritativo** — mantém o estado do jogo, recebe as ações dos outros jogadores e re-transmite o estado para todos. Só precisa de URL + anon key.
+
+## Configurar (rodar localmente)
+1. Crie um projeto no [Supabase](https://supabase.com) (free).
+2. Em **Project Settings → API**, copie a *Project URL* e a *anon public key*.
+3. Preencha o `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+   ```
+   > Não precisa criar tabelas. Só confira que **Realtime** está habilitado (vem ligado por padrão).
+4. `npm install` e `npm run dev` → http://localhost:3008
+
+## Como jogar
+1. Um jogador clica **Criar sala** e compartilha o código de 4 letras.
+2. Os outros entram pelo código (ou link).
+3. A cada rodada aparece uma pergunta de resposta numérica. Na sua vez, **chute um número maior** que o anterior — ou grite **"Pato Bravo!"** pra desafiar o último palpite.
+4. Revela-se a resposta: palpite ≤ resposta → quem desafiou leva a carta; palpite > resposta → quem chutou leva.
+5. No fim, **quem tiver mais cartas perde**.
+
+## Adicionar perguntas
+Edite `lib/questions.ts` — basta seguir o formato `{ id, pergunta, resposta, categoria }`.
+
+## Testar a lógica
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+npx tsx scripts/test-logic.ts
+```
